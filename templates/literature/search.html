@@ -1,10 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Результаты поиска — Литературная карта народов России{% endblock %}
+
+{% block content %}
+<main class="page">
+  <section class="hero">
+    <div class="eyebrow">Поиск по сайту</div>
+    <h1>Результаты поиска</h1>
+    <p>По запросу: <strong>«{{ query }}»</strong></p>
+  </section>
+
+  <section class="section">
+    <div class="author-grid">
+      {% for author in authors %}
+        <a class="author-card" href="{{ author.get_absolute_url }}">
+          <div class="author-card__top">
+            <span>{{ author.region }}</span>
+          </div>
+          <div class="author-card__body">
+            <div class="author-card__meta">Литература народов России</div>
+            <h3>{{ author.name }}</h3>
+            <p>{{ author.summary }}</p>
+            <span class="text-link">Открыть страницу автора <b aria-hidden="true">↗</b></span>
+          </div>
+        </a>
+      {% empty %}
+        <p>По вашему запросу ничего не найдено.</p>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+{% endblock %}
