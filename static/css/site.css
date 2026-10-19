@@ -1231,6 +1231,7 @@ textarea {
     padding: 24px;
   }
 }
+
 .site-search {
   position: relative;
   display: flex;
@@ -1247,11 +1248,10 @@ textarea {
   background: var(--surface-soft);
   color: var(--text);
   font-size: 13px;
-  transition: width 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .site-search input:focus {
-  width: 240px;
   border-color: var(--accent);
   background: #fff;
   outline: none;
@@ -1276,12 +1276,28 @@ textarea {
   color: var(--text);
 }
 
-/* для мобильных устройств */
-@media (max-width: 768px) {
-  .site-search input {
-    width: 140px;
+.search-results {
+  padding-bottom: 60px;
+}
+
+@media (max-width: 1200px) {
+  .site-header__inner {
+    flex-wrap: wrap;
+    row-gap: 8px;
   }
-  .site-search input:focus {
-    width: 180px;
+
+  .site-search {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 850px) {
+  .site-search {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .site-search input {
+    width: 100%;
   }
 }

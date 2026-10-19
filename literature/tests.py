@@ -424,3 +424,51 @@ class MaterialAccessTests(TemporaryMediaMixin, TestCase):
         response = self.client.get(self.stream_url)
 
         self.assertEqual(response.status_code, 404)
+
+
+class SearchTests(TestCase):
+    def search(self, query):
+        return self.client.get(reverse('search'), {'q': query})
+
+    def found(self, query):
+        return [author.slug for author in self.search(query).context['authors']]
+
+    def test_finds_by_name_ignoring_case(self):
+        self.assertEqual(self.found('ГАМЗАТОВ'), ['gamzatov'])
+
+    def test_finds_by_work_and_birth_place(self):
+        self.assertEqual(self.found('Белый пароход'), ['aitmatov'])
+        self.assertEqual(self.found('Кошлауч'), ['tukay'])
+
+    def test_treats_yo_as_ye(self):
+        self.assertEqual(self.found('зиндане мое'), ['akmulla'])
+
+    def test_matches_all_words_in_any_order(self):
+        self.assertEqual(self.found('Журавли Гамзатов'), ['gamzatov'])
+
+    def test_shows_query_as_typed_with_count(self):
+        response = self.search('  Гамзатов  ')
+
+        self.assertContains(response, 'По запросу <strong>«Гамзатов»</strong> найден 1 автор.', html=True)
+
+    def test_empty_query_asks_for_input(self):
+        response = self.search('   ')
+
+        self.assertEqual(response.context['authors'], [])
+        self.assertContains(response, 'Введите запрос в поле поиска')
+
+    def test_reports_nothing_found(self):
+        response = self.search('zzz')
+
+        self.assertContains(response, 'По запросу <strong>«zzz»</strong> ничего не найдено.', html=True)
+
+    def test_escapes_query(self):
+        response = self.search('<script>alert(1)</script>')
+
+        self.assertNotContains(response, '<script>alert(1)</script>')
+        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;')
+
+    def test_search_form_is_in_header(self):
+        response = self.client.get(reverse('home'))
+
+        self.assertContains(response, f'action="{reverse("search")}"')

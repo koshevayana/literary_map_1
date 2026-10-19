@@ -9,6 +9,7 @@ A Django navigator site for literature teachers, school students and philology s
 - **Home page**: a map with author points, author cards, a lesson-plan toolkit and a "Literature by grade" block. Selecting a grade keeps only the authors studied in that grade on the map and in the list.
 - **Author page**: portrait, full name, life dates, birthplace, literary tradition, biography, key works and a "Lesson plan" section: text and/or a lesson-plan file, worksheets (images), audio and video. Until a lesson plan is added, the page shows a placeholder for the section.
 - **Access to materials**: everything is open for viewing to all visitors. Only registered users can download uploaded audio and video. VK videos are shown in the embedded VK player.
+- **Search** at `/search/`: the header field finds authors by name, full name, region, birthplace, literary tradition, biography and works. Letter case does not matter, «е» and «ё» are treated as the same letter, and query words may come in any order.
 - **Registration**: full name, email, workplace, research interests and password. Users sign in with their email.
 - **Admin** at `/admin/`: all site content is edited without touching the code.
 

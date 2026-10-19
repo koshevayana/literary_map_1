@@ -1,12 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, render
-from django.db.models import Q
-from django.db.models.functions import Lower, Upper
-from .models import Author
 
 from .media import open_or_404, ranged_file_response
 from .models import Author, Grade, Material
+
+SEARCH_FIELDS = ('name', 'full_name', 'region', 'birth_place', 'tradition', 'summary', 'biography', 'significance')
+
+
+def normalize_for_search(text):
+    return ' '.join(text.casefold().replace('ё', 'е').split())
 
 
 def home(request):
@@ -45,31 +48,17 @@ def material_download(request, pk):
     )
 
 
-
 def search(request):
-    query = request.GET.get('q', '').strip().lower()
+    query = ' '.join(request.GET.get('q', '').split())
+    words = normalize_for_search(query).split()
     authors = []
 
-    if query:
-        all_authors = Author.objects.prefetch_related('grades', 'works').all()
-        matched_authors = []
-        for author in all_authors:
-            haystack = " ".join([
-                author.name or "",
-                author.full_name or "",
-                author.region or "",
-                author.biography or "",
-                author.summary or "",
-                " ".join([w.title for w in author.works.all()])
-            ]).lower()
+    if words:
+        for author in Author.objects.prefetch_related('works'):
+            texts = [getattr(author, field) for field in SEARCH_FIELDS]
+            texts += [work.title for work in author.works.all()]
+            haystack = normalize_for_search(' '.join(texts))
+            if all(word in haystack for word in words):
+                authors.append(author)
 
-            if query in haystack:
-                matched_authors.append(author.pk)
-        q_authors = Author.objects.filter(pk__in=matched_authors).prefetch_related('grades', 'works')
-        authors = list(q_authors)
-
-    context = {
-        'query': query,
-        'authors': authors,
-    }
-    return render(request, 'literature/search.html', context)
+    return render(request, 'literature/search.html', {'query': query, 'authors': authors})
